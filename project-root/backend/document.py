@@ -1,5 +1,3 @@
-# backend/routers/document.py
-
 from fastapi import APIRouter, File, UploadFile
 from utils.extract_text import extract_text
 from utils.ml_functions import process_document

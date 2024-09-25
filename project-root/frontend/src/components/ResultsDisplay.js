@@ -1,103 +1,65 @@
 import React from 'react';
-import { Card, CardContent, Typography, Grid } from '@mui/material';
-import { motion } from 'framer-motion';
-
-// Define animation variants for consistent motion settings
-const containerVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: {
-      staggerChildren: 0.2,
-      duration: 0.5,
-    },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, scale: 0.95 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: {
-      duration: 0.5,
-    },
-  },
-};
+import { Grid, Typography, Button, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import SummaryDisplay from './SummaryDisplay';
+import EntitiesDisplay from './EntitiesDisplay';
+import SentimentChart from './SentimentChart';
+import { jsPDF } from 'jspdf';
 
 function ResultsDisplay({ results }) {
   const { summary, entities, sentiment } = results;
 
+  const handleDownload = () => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text('Summary', 10, 10);
+    doc.setFontSize(12);
+    doc.text(summary, 10, 20);
+    doc.save('analysis.pdf');
+  };
+
   return (
-    <motion.div
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <Grid container spacing={2}>
-        {/* Summary Card */}
-        <Grid item xs={12}>
-          <motion.div variants={cardVariants}>
-            <Card variant="outlined" sx={{ backgroundColor: '#f9f9f9' }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  Summary
-                </Typography>
-                <Typography variant="body1">{summary}</Typography>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </Grid>
-
-        {/* Entities Card */}
-        <Grid item xs={12}>
-          <motion.div variants={cardVariants}>
-            <Card variant="outlined" sx={{ backgroundColor: '#f1f1f1' }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  Entities
-                </Typography>
-                {entities.length > 0 ? (
-                  entities.map((entity, index) => (
-                    <Typography key={index} variant="body2">
-                      <strong>{entity[0]}</strong>: {entity[1]}
-                    </Typography>
-                  ))
-                ) : (
-                  <Typography variant="body2">No entities found.</Typography>
-                )}
-              </CardContent>
-            </Card>
-          </motion.div>
-        </Grid>
-
-        {/* Sentiment Analysis Card */}
-        <Grid item xs={12}>
-          <motion.div variants={cardVariants}>
-            <Card variant="outlined" sx={{ backgroundColor: '#e9e9e9' }}>
-              <CardContent>
-                <Typography variant="h5" gutterBottom>
-                  Sentiment Analysis
-                </Typography>
-                <Typography variant="body2" color="success.main">
-                  Positive: {sentiment.pos}
-                </Typography>
-                <Typography variant="body2" color="warning.main">
-                  Neutral: {sentiment.neu}
-                </Typography>
-                <Typography variant="body2" color="error.main">
-                  Negative: {sentiment.neg}
-                </Typography>
-                <Typography variant="body2">
-                  Compound: {sentiment.compound}
-                </Typography>
-              </CardContent>
-            </Card>
-          </motion.div>
-        </Grid>
+    <Grid container spacing={2} sx={{ mt: 4 }}>
+      <Grid item xs={12}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Summary</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <SummaryDisplay summary={summary} />
+          </AccordionDetails>
+        </Accordion>
       </Grid>
-    </motion.div>
+
+      <Grid item xs={12} md={6}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Entities</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <EntitiesDisplay entities={entities} />
+          </AccordionDetails>
+        </Accordion>
+      </Grid>
+
+      <Grid item xs={12} md={6}>
+        <Accordion>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <Typography variant="h6">Sentiment Analysis</Typography>
+          </AccordionSummary>
+          <AccordionDetails>
+            <SentimentChart sentiment={sentiment} />
+            <Typography variant="body2">Compound Score: {sentiment.compound}</Typography>
+          </AccordionDetails>
+        </Accordion>
+      </Grid>
+
+      <Grid item xs={12}>
+        <Button variant="contained" onClick={handleDownload}>
+          Download Results
+        </Button>
+      </Grid>
+    </Grid>
   );
 }
 
