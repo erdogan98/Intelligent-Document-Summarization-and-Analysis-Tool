@@ -6,7 +6,17 @@ from entity_recognition import extract_entities
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from DB_MODELS import Document
+from fastapi.middleware.cors import CORSMiddleware
+
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 #create database session
 engine = create_engine('sqlite:///database.db')
