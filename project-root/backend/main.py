@@ -3,7 +3,6 @@ from starlette.responses import JSONResponse
 
 from extract_text import extract_text
 from load_t5 import summarize_text
-from sentiment_analysis import analyze_sentiment
 from entity_recognition import extract_entities
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
