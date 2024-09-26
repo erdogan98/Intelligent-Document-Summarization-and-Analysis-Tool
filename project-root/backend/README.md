@@ -2,10 +2,10 @@
 
 In the project directory, you can run:
 
-### `npm install`
+### `pip install requirements.txt`
 
 Installs the necessary librariries for the app.
 
-### `npm start`
+### ` uvicorn main:app --reload`
 
 Launches the app.
