@@ -1,4 +1,3 @@
-# backend/utils/ml_functions.py
 import os
 import openai
 import spacy

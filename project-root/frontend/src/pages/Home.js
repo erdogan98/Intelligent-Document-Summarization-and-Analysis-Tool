@@ -1,4 +1,3 @@
-// src/pages/Home.js
 import React, { useState } from 'react';
 import { Container } from '@mui/material';
 import UploadForm from '../components/UploadForm';
