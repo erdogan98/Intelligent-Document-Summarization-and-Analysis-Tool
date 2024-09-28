@@ -1,6 +1,6 @@
 # Intelligent Document Summarization and Analysis Tool
 
-![Project Logo](https://github.com/erdogan98/Intelligent-Document-Summarization-and-Analysis-Tool/logo.png)
+![Project Logo](https://github.com/erdogan98/Intelligent-Document-Summarization-and-Analysis-Tool/blob/a9c5ded08f1febe75a415cdcf5faf73ce57813a9/project-root/logo.png)
 
 ## Table of Contents
 
