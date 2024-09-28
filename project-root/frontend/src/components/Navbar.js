@@ -7,7 +7,12 @@ function Navbar({ toggleTheme, mode }) {
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component={Link} to="/" style={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}>
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/"
+          style={{ flexGrow: 1, textDecoration: 'none', color: 'inherit' }}
+        >
           Document Summarizer
         </Typography>
         <IconButton color="inherit" onClick={toggleTheme}>

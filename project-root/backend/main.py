@@ -1,6 +1,5 @@
 from fastapi import FastAPI, File, UploadFile
 from starlette.responses import JSONResponse
-
 from extract_text import extract_text
 from load_t5 import summarize_text
 from entity_recognition import extract_entities
@@ -10,6 +9,9 @@ from DB_MODELS import Document
 from fastapi.middleware.cors import CORSMiddleware
 from sentiment import analyze_sentiment
 import logging
+import os
+from TextInput import TextInput
+
 
 logger = logging.getLogger(__name__)
 
@@ -20,6 +22,10 @@ origins = [
     "http://127.0.0.1:3000",
     "http://192.168.0.20:3000",
 ]
+
+# Get allowed origins from environment variable
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS", "")
+allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
 
 app.add_middleware(
     CORSMiddleware,
@@ -74,4 +80,36 @@ async def process_document(file: UploadFile = File(...)):
         return JSONResponse(
             status_code=400,
             content={"status": "error", "message": "Unsupported file type or error reading file"},
+        )
+
+
+@app.post("/process_text")
+async def process_text(input: TextInput):
+    """
+    Endpoint to process raw text input.
+    """
+    text = input.text.strip()
+    if not text:
+        logger.warning("No text provided in the request.")
+        return JSONResponse(
+            status_code=400,
+            content={"status": "error", "message": "No text provided."},
+        )
+
+    try:
+        summary = summarize_text(text)
+        entities = extract_entities(text)
+        sentiment = analyze_sentiment(text)
+        logger.info("Processed text input successfully.")
+        return {
+            "status": "success",
+            "summary": summary,
+            "entities": entities,
+            "sentiment": sentiment,
+        }
+    except Exception as e:
+        logger.error(f"Error processing text: {e}")
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "message": "Internal server error while processing text."},
         )
