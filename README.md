@@ -64,8 +64,8 @@ Follow these steps to set up the project on your local machine.
 ### Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/your-repo-name.git
-cd your-repo-name
+git clone https://github.com/erdogan98/Intelligent-Document-Summarization-and-Analysis-Tool.git
+cd Intelligent-Document-Summarization-and-Analysis-Tool
 ```
 
 ### Create a Virtual Environment
