@@ -40,7 +40,7 @@ The **Intelligent Document Summarization and Analysis Tool** is a powerful backe
 [//]: # ()
 [//]: # (![Demo GIF]&#40;https://github.com/yourusername/your-repo-name/raw/main/assets/demo.gif&#41;)
 
-*Illustration of uploading a document and receiving summarized analysis.*
+[//]: # (*Illustration of uploading a document and receiving summarized analysis.*)
 
 ## Technologies Used
 
