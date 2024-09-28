@@ -1,3 +1,4 @@
+# extract_text.py
 
 import aiofiles
 import PyPDF2
@@ -10,6 +11,9 @@ from starlette.concurrency import run_in_threadpool
 from pathlib import Path
 import tempfile
 import markdown
+from concurrent.futures import ProcessPoolExecutor
+import asyncio
+import os
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -22,6 +26,11 @@ MAX_FILE_SIZE = 10 * 1024 * 1024  # 10 MB
 SAFE_TMP_DIR = Path(tempfile.gettempdir()) / "extracted_files"
 SAFE_TMP_DIR.mkdir(parents=True, exist_ok=True)
 
+# Configure the number of worker processes for CPU-bound tasks
+MAX_WORKERS = os.cpu_count() or 4  # Fallback to 4 if os.cpu_count() is None
+
+# Initialize a global ProcessPoolExecutor
+executor = ProcessPoolExecutor(max_workers=MAX_WORKERS)
 
 def get_safe_filename(filename: str) -> str:
     """
@@ -34,7 +43,6 @@ def get_safe_filename(filename: str) -> str:
         str: Sanitized filename.
     """
     return Path(filename).name
-
 
 async def extract_text(file: UploadFile) -> str:
     """
@@ -81,10 +89,9 @@ async def extract_text(file: UploadFile) -> str:
     logger.warning(f"Unsupported file type: {file.filename}")
     raise HTTPException(status_code=400, detail="Unsupported file type")
 
-
 async def extract_pdf(file: UploadFile) -> str:
     """
-    Extracts text from a PDF file.
+    Extracts text from a PDF file asynchronously using a separate process.
 
     Args:
         file (UploadFile): The uploaded PDF file.
@@ -93,7 +100,7 @@ async def extract_pdf(file: UploadFile) -> str:
         str: Extracted text.
     """
     try:
-        def _extract():
+        async def _extract():
             reader = PyPDF2.PdfReader(file.file)
             if reader.is_encrypted:
                 try:
@@ -114,10 +121,9 @@ async def extract_pdf(file: UploadFile) -> str:
         logger.error(f"Unexpected error in PDF extraction for {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Error extracting PDF content")
 
-
 async def extract_docx(file: UploadFile) -> str:
     """
-    Extracts text from a DOCX file.
+    Extracts text from a DOCX file asynchronously using a separate process.
 
     Args:
         file (UploadFile): The uploaded DOCX file.
@@ -126,7 +132,7 @@ async def extract_docx(file: UploadFile) -> str:
         str: Extracted text.
     """
     try:
-        def _extract():
+        async def _extract():
             document = Document(file.file)
             return "\n".join(para.text for para in document.paragraphs)
 
@@ -136,10 +142,9 @@ async def extract_docx(file: UploadFile) -> str:
         logger.error(f"Error extracting DOCX from {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Error extracting DOCX content")
 
-
 async def extract_txt(file: UploadFile) -> str:
     """
-    Extracts text from a TXT file.
+    Extracts text from a TXT file asynchronously.
 
     Args:
         file (UploadFile): The uploaded TXT file.
@@ -155,10 +160,9 @@ async def extract_txt(file: UploadFile) -> str:
         logger.error(f"Error extracting TXT from {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Error extracting TXT content")
 
-
 async def extract_rtf(file: UploadFile) -> str:
     """
-    Extracts text from an RTF file.
+    Extracts text from an RTF file asynchronously using a separate process.
 
     Args:
         file (UploadFile): The uploaded RTF file.
@@ -167,8 +171,8 @@ async def extract_rtf(file: UploadFile) -> str:
         str: Extracted text.
     """
     try:
-        def _extract():
-            content_bytes = file.file.read()
+        async def _extract():
+            content_bytes = await file.read()
             content = content_bytes.decode('utf-8', errors='ignore')
             return rtf_to_text(content)
 
@@ -178,10 +182,9 @@ async def extract_rtf(file: UploadFile) -> str:
         logger.error(f"Error extracting RTF from {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Error extracting RTF content")
 
-
 async def extract_markdown(file: UploadFile) -> str:
     """
-    Extracts text from a Markdown file by converting it to HTML first.
+    Extracts text from a Markdown file asynchronously using a separate process.
 
     Args:
         file (UploadFile): The uploaded Markdown file.
@@ -204,10 +207,9 @@ async def extract_markdown(file: UploadFile) -> str:
         logger.error(f"Error extracting Markdown from {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Error extracting Markdown content")
 
-
 async def extract_html(file: UploadFile) -> str:
     """
-    Extracts text from an HTML file.
+    Extracts text from an HTML file asynchronously using a separate process.
 
     Args:
         file (UploadFile): The uploaded HTML file.
@@ -228,3 +230,7 @@ async def extract_html(file: UploadFile) -> str:
     except Exception as e:
         logger.error(f"Error extracting HTML from {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Error extracting HTML content")
+
+# Ensure proper shutdown of the ProcessPoolExecutor
+import atexit
+atexit.register(lambda: executor.shutdown(wait=True))
