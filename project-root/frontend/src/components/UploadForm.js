@@ -20,7 +20,11 @@ function UploadForm({ setResults }) {
 
     setLoading(true);
     try {
-      const response = await axios.post('http://localhost:8000/process', formData);
+      const response = await axios.post('http://localhost:8000/process', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       setResults(response.data);
       setSnackbar({ open: true, message: 'File processed successfully!', severity: 'success' });
     } catch (error) {

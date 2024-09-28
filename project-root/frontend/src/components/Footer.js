@@ -7,6 +7,10 @@ function Footer() {
       <Typography variant="body2" color="text.secondary">
         © {new Date().getFullYear()} Document Summarizer. All rights reserved.
       </Typography>
+        Developed by Ed E. Kervanli
+        <Typography variant="body3" color="text.thirdly">
+
+        </Typography>
     </Box>
   );
 }

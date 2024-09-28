@@ -1,65 +1,57 @@
 import React from 'react';
-import { Grid, Typography, Button, Accordion, AccordionSummary, AccordionDetails } from '@mui/material';
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { Grid, Card,Box, CardContent, Typography, Button } from '@mui/material';
 import SummaryDisplay from './SummaryDisplay';
 import EntitiesDisplay from './EntitiesDisplay';
-import SentimentChart from './SentimentChart';
-import { jsPDF } from 'jspdf';
+import SentimentIcon from './SentimentIcon';
 
 function ResultsDisplay({ results }) {
   const { summary, entities, sentiment } = results;
 
-  const handleDownload = () => {
-    const doc = new jsPDF();
-    doc.setFontSize(16);
-    doc.text('Summary', 10, 10);
-    doc.setFontSize(12);
-    doc.text(summary, 10, 20);
-    doc.save('analysis.pdf');
-  };
-
   return (
-    <Grid container spacing={2} sx={{ mt: 4 }}>
-      <Grid item xs={12}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Summary</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <SummaryDisplay summary={summary} />
-          </AccordionDetails>
-        </Accordion>
-      </Grid>
+      <Grid container spacing={2} sx={{ mt: 4 }}>
+        <Grid item xs={12}>
+          {/* Summary Card */}
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h5">Summary</Typography>
+              <SummaryDisplay summary={summary} />
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <Grid item xs={12} md={6}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Entities</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <EntitiesDisplay entities={entities} />
-          </AccordionDetails>
-        </Accordion>
-      </Grid>
+        <Grid item xs={12}>
+          {/* Entities Card */}
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h5">Entities</Typography>
+              <EntitiesDisplay entities={entities} />
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <Grid item xs={12} md={6}>
-        <Accordion>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography variant="h6">Sentiment Analysis</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <SentimentChart sentiment={sentiment} />
-            <Typography variant="body2">Compound Score: {sentiment.compound}</Typography>
-          </AccordionDetails>
-        </Accordion>
-      </Grid>
+        <Grid item xs={12}>
+          {/* Sentiment Analysis Card */}
+          <Card variant="outlined">
+            <CardContent>
+              <Typography variant="h5">Sentiment Analysis</Typography>
+              {sentiment.label === 'ERROR' ? (
+                  <Typography variant="body1" color="error">
+                    An error occurred during sentiment analysis.
+                  </Typography>
+              ) : (
+                  <Box display="flex" alignItems="center">
+                    <SentimentIcon label={sentiment.label} />
+                    <Typography variant="body1" style={{ marginLeft: '8px' }}>
+                      {sentiment.label} ({(sentiment.score * 100).toFixed(2)}%)
+                    </Typography>
+                  </Box>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
 
-      <Grid item xs={12}>
-        <Button variant="contained" onClick={handleDownload}>
-          Download Results
-        </Button>
+        {/* ... any other components like download button ... */}
       </Grid>
-    </Grid>
   );
 }
 
