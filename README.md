@@ -35,9 +35,10 @@ The **Intelligent Document Summarization and Analysis Tool** is a powerful backe
 - **Asynchronous Processing:** Utilizes asynchronous operations to handle multiple requests concurrently, ensuring high performance and scalability.
 - **CORS Configuration:** Securely manages cross-origin requests to allow integration with front-end applications.
 
-## Demo
+[//]: # (## Demo)
 
-![Demo GIF](https://github.com/yourusername/your-repo-name/raw/main/assets/demo.gif)
+[//]: # ()
+[//]: # (![Demo GIF]&#40;https://github.com/yourusername/your-repo-name/raw/main/assets/demo.gif&#41;)
 
 *Illustration of uploading a document and receiving summarized analysis.*
 
