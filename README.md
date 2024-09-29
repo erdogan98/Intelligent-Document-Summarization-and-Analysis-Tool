@@ -6,7 +6,8 @@
 
 - [Introduction](#introduction)
 - [Features](#features)
-- [Demo](#demo)
+
+[//]: # (- [Demo]&#40;#demo&#41;)
 - [Technologies Used](#technologies-used)
 - [Installation](#installation)
 - [Configuration](#configuration)
