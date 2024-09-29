@@ -3,9 +3,9 @@ import asyncio
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from starlette.responses import JSONResponse
 from extract_text import extract_text
-from load_t5 import summarize_text_async
-from entity_recognition import extract_entities_async  # Ensure correct module name
-from sentiment import analyze_sentiment_async
+from load_t5 import summarize_text
+from entity_recognition import extract_entities  # Ensure correct module name
+from sentiment import analyze_sentiment
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from DB_MODELS import Document  # Ensure DB_MODELS.py defines Document model
@@ -49,9 +49,11 @@ DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./database.db")
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {})
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+
 # Pydantic model for text input
 class TextInput(BaseModel):
     text: str
+
 
 # Dependency for database session
 def get_db():
@@ -61,9 +63,11 @@ def get_db():
     finally:
         db.close()
 
+
 @app.get("/")
 def read_root():
     return {"message": "Welcome to the Intelligent Document Summarization API"}
+
 
 # Correctly define the /upload endpoint
 @app.post("/upload")
@@ -74,6 +78,7 @@ async def upload(file: UploadFile = File(...)):
     except Exception as e:
         logger.error(f"Error uploading file {file.filename}: {e}")
         raise HTTPException(status_code=500, detail="Internal server error during file upload.")
+
 
 @app.post("/process")
 async def process_document(file: UploadFile = File(...), db: Session = Depends(get_db)):
@@ -90,18 +95,18 @@ async def process_document(file: UploadFile = File(...), db: Session = Depends(g
     if text:
         try:
             # Initiate asynchronous tasks
-            summary_task = asyncio.create_task(summarize_text_async(text))
-            entities_task = asyncio.create_task(extract_entities_async(text))
-            sentiment_task = asyncio.create_task(analyze_sentiment_async(text))
+            summary_task = (summarize_text(text))
+            entities_task = (extract_entities(text))
+            sentiment_task = (analyze_sentiment(text))
 
             # Await all tasks concurrently
-            summary, entities, sentiment = await asyncio.gather(summary_task, entities_task, sentiment_task)
+            summary, entities, sentiment = summary_task, entities_task, sentiment_task
 
-            # Optionally, save to database
-            document = Document(filename=file.filename, text=text, summary=summary, entities=entities, sentiment=sentiment)
-            db.add(document)
-            db.commit()
-            db.refresh(document)
+            # # Optionally, save to database
+            # document = Document(filename=file.filename, text=text, summary=summary, entities=entities, sentiment=sentiment)
+            # db.add(document)
+            # db.commit()
+            # db.refresh(document)
 
             logger.info(f"Processed file {file.filename} successfully.")
             return {
@@ -123,6 +128,7 @@ async def process_document(file: UploadFile = File(...), db: Session = Depends(g
             content={"status": "error", "message": "Unsupported file type or error reading file."},
         )
 
+
 @app.post("/process_text")
 async def process_text(input: TextInput, db: Session = Depends(get_db)):
     """
@@ -135,12 +141,12 @@ async def process_text(input: TextInput, db: Session = Depends(get_db)):
 
     try:
         # Initiate asynchronous tasks
-        summary_task = asyncio.create_task(summarize_text_async(text))
-        entities_task = asyncio.create_task(extract_entities_async(text))
-        sentiment_task = asyncio.create_task(analyze_sentiment_async(text))
+        summary_task = (summarize_text(text))
+        entities_task = (extract_entities(text))
+        sentiment_task = (analyze_sentiment(text))
 
         # Await all tasks concurrently
-        summary, entities, sentiment = await asyncio.gather(summary_task, entities_task, sentiment_task)
+        summary, entities, sentiment = summary_task, entities_task, sentiment_task
 
         # # Optionally, save to database
         # document = Document(filename="Raw Text Input", text=text, summary=summary, entities=entities, sentiment=sentiment)

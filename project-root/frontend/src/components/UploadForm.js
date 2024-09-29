@@ -22,7 +22,7 @@ function UploadForm({ setResults }) {
     try {
       const response = await axios.post('http://localhost:8000/process', formData, {
         headers: {
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'aaplication/json',
         },
       });
       setResults(response.data);
